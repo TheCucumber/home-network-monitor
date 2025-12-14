@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: network-monitor-backend
+    restart: unless-stopped
+    environment:
+      # Server Configuration
+      - PORT=8000
+      - HOST=0.0.0.0
+
+      # Ping Configuration
+      - PING_INTERVAL=60
+      - PING_TIMEOUT=5
+      - PING_RETRIES=2
+
+      # Database Configuration
+      - DATABASE_PATH=/app/data/pings.db
+
+      # Data Retention
+      - RETENTION_DAYS=120
+      - CLEANUP_HOUR=2
+
+      # Monitored Hosts (comma-separated)
+      - MONITORED_HOSTS=router.local,8.8.8.8,1.1.1.1
+
+      # CORS Origins (allow frontend)
+      - CORS_ORIGINS=http://localhost,http://localhost:80,http://localhost:3000
+    volumes:
+      # Persist database
+      - ./data:/app/data
+    ports:
+      # Expose backend port (optional, frontend proxies requests)
+      - "8000:8000"
+    networks:
+      - network-monitor
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: network-monitor-frontend
+    restart: unless-stopped
+    ports:
+      # Main application port
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - network-monitor
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  network-monitor:
+    driver: bridge
+
+volumes:
+  data:
+    driver: local
