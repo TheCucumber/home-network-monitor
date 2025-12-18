@@ -53,8 +53,7 @@ A full-stack network monitoring solution that tracks ping latency to multiple ho
 ## 🚀 Prerequisites
 
 ### Option 1: Docker (Recommended) ⭐
-- **Docker** 20.10 or higher
-- **Docker Compose** 2.0 or higher
+- **Docker** 20.10 or higher (includes Docker Compose v2)
 
 ### Option 2: Manual Installation
 - **Python** 3.8 or higher
@@ -63,7 +62,9 @@ A full-stack network monitoring solution that tracks ping latency to multiple ho
 
 ## 🐳 Quick Start with Docker (Recommended)
 
-The easiest and fastest way to get started:
+The easiest and fastest way to get started.
+
+> **Note:** This guide uses the modern `docker compose` command (Docker Compose v2). If you see errors with `docker-compose` (hyphenated), make sure you're using `docker compose` (space) instead. Docker Compose v2 comes bundled with Docker 20.10+.
 
 ### Step 1: Clone the Repository
 ```bash
@@ -79,7 +80,7 @@ Edit `docker-compose.yml` and modify the `MONITORED_HOSTS` environment variable:
 
 ### Step 3: Start the Application
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 That's it! The application is now running.
@@ -94,22 +95,22 @@ Open your browser and navigate to:
 ### Viewing Logs
 ```bash
 # View all logs
-docker-compose logs -f
+docker compose logs -f
 
 # View only backend logs
-docker-compose logs -f backend
+docker compose logs -f backend
 
 # View only frontend logs
-docker-compose logs -f frontend
+docker compose logs -f frontend
 ```
 
 ### Stopping the Application
 ```bash
 # Stop containers (keeps data)
-docker-compose down
+docker compose down
 
 # Stop and remove all data
-docker-compose down -v
+docker compose down -v
 ```
 
 ### 🔧 Docker Configuration Options
@@ -138,31 +139,31 @@ environment:
 **Managing the Application:**
 ```bash
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # Stop all services (keeps data)
-docker-compose down
+docker compose down
 
 # Restart services
-docker-compose restart
+docker compose restart
 
 # Rebuild after code changes
-docker-compose up -d --build
+docker compose up -d --build
 
 # View service status
-docker-compose ps
+docker compose ps
 ```
 
 **Viewing Logs:**
 ```bash
 # Follow all logs
-docker-compose logs -f
+docker compose logs -f
 
 # View last 100 lines
-docker-compose logs --tail=100
+docker compose logs --tail=100
 
 # View specific service
-docker-compose logs -f backend
+docker compose logs -f backend
 ```
 
 **Data Management:**
@@ -171,12 +172,12 @@ docker-compose logs -f backend
 cp ./data/pings.db ./data/pings-backup-$(date +%Y%m%d).db
 
 # Restore database
-docker-compose stop backend
+docker compose stop backend
 cp ./data/pings-backup.db ./data/pings.db
-docker-compose start backend
+docker compose start backend
 
 # Delete all data (WARNING: irreversible!)
-docker-compose down -v
+docker compose down -v
 rm -rf ./data
 ```
 
@@ -300,7 +301,7 @@ MONITORED_HOSTS=192.168.1.1,google.com,8.8.8.8,router.local
 Then restart the application:
 ```bash
 # Docker
-docker-compose restart backend
+docker compose restart backend
 
 # Manual
 # Stop and restart the backend server
@@ -358,7 +359,7 @@ For production, simply run Docker Compose in detached mode:
 
 ```bash
 # Start services
-docker-compose up -d
+docker compose up -d
 
 # Services will automatically restart on:
 # - Container failure
@@ -368,9 +369,9 @@ docker-compose up -d
 **Production Best Practices:**
 
 1. **Persistent Storage**: Database is already persisted in `./data/`
-2. **Monitoring**: Check logs regularly with `docker-compose logs -f`
+2. **Monitoring**: Check logs regularly with `docker compose logs -f`
 3. **Backups**: Schedule regular database backups (see Data Management section)
-4. **Updates**: Rebuild containers after pulling new code: `docker-compose up -d --build`
+4. **Updates**: Rebuild containers after pulling new code: `docker compose up -d --build`
 
 ### Adding HTTPS (Reverse Proxy)
 
@@ -527,16 +528,16 @@ For detailed documentation and to test endpoints interactively, visit http://loc
 **Container Won't Start**
 ```bash
 # Check logs for specific service
-docker-compose logs backend
-docker-compose logs frontend
+docker compose logs backend
+docker compose logs frontend
 
 # Check container status
-docker-compose ps
+docker compose ps
 
 # Rebuild containers
-docker-compose down
-docker-compose build --no-cache
-docker-compose up -d
+docker compose down
+docker compose build --no-cache
+docker compose up -d
 ```
 
 **Permission Errors with Ping**
@@ -570,10 +571,10 @@ chown -R $USER:$USER ./data
 **Containers Keep Restarting**
 ```bash
 # Check health status
-docker-compose ps
+docker compose ps
 
 # View detailed logs
-docker-compose logs -f --tail=100
+docker compose logs -f --tail=100
 
 # Common issues:
 # - Backend can't connect to database
@@ -585,7 +586,7 @@ docker-compose logs -f --tail=100
 ```bash
 # Make sure containers can reach your network hosts
 # Test from within the container
-docker-compose exec backend ping -c 3 192.168.1.1
+docker compose exec backend ping -c 3 192.168.1.1
 
 # If hosts are on local network, you may need host networking:
 # Edit docker-compose.yml and add under backend service:
@@ -681,7 +682,7 @@ home-network-monitor/
 
 1. **Make changes** to backend or frontend code
 2. **Test locally**:
-   - Docker: `docker-compose up -d --build`
+   - Docker: `docker compose up -d --build`
    - Manual: Restart backend/frontend servers
 3. **Test functionality** in browser
 4. **Commit changes** to git
